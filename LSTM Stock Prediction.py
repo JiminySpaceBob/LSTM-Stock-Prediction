@@ -8,6 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM
+from tensorflow.keras.callbacks import EarlyStopping
 import math
 from sklearn.metrics import mean_squared_error
 
@@ -118,16 +119,17 @@ print(xtest.shape, ytest.shape) # Test
 
 tf.keras.backend.clear_session()
 model = Sequential()
-model.add(LSTM(200, return_sequences=True, input_shape = (timestep, 1)))
+model.add(LSTM(100, return_sequences=True, input_shape = (timestep, 1)))
 model.add(Dropout(0.2))
-model.add(LSTM(200, return_sequences=True))
+model.add(LSTM(100, return_sequences=True))
 model.add(Dropout(0.2))
-model.add(LSTM(150))
+model.add(LSTM(50))
 model.add(Dense(1))
 model.compile(loss='mean_squared_error', optimizer='adam')
 print(model.summary())
 
-history = model.fit(xtrain, ytrain, validation_data = (xtest, ytest), epochs=50, batch_size = 64, verbose = 1) # Training the LSTM Model
+early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+history = model.fit(xtrain, ytrain, validation_data = (xtest, ytest), epochs=50, batch_size = 64, verbose = 1, callbacks=[early_stopping]) # Training the LSTM Model
 
 # VISUALIZING THE TRAINING LOSS AGAINST VALIDATION LOSS
 
